@@ -1,0 +1,33 @@
+version: '3'
+services:
+  getbalance:
+    build:
+      context: ./getBalance
+    volumes:
+      - ./getBalance:/app
+    ports:
+      - 12007:12007
+    networks:
+      - mynetwork
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
+  token_balance:
+    build:
+      context: ./token_balance
+    volumes:
+      - ./token_balance:/app
+    ports:
+      - 12006:12006
+    networks:
+      - mynetwork
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Shanghai
+    restart: always
+
+networks:
+  mynetwork:

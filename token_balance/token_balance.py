@@ -10,7 +10,7 @@ app = Flask(__name__)
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-executor = ThreadPoolExecutor(max_workers=10)
+executor = ThreadPoolExecutor(max_workers=50)
 
 
 abi = [
@@ -54,9 +54,12 @@ abi = [
 
 
 def get_token_data(web3, token_address, address, chain):
+
+
+
     token_contract = web3.eth.contract(address=token_address, abi=abi)
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=30) as executor:
         decimals_future = executor.submit(token_contract.functions.decimals().call)
         balance_future = executor.submit(token_contract.functions.balanceOf(address).call)
         symbol_future = executor.submit(token_contract.functions.symbol().call)
@@ -64,6 +67,7 @@ def get_token_data(web3, token_address, address, chain):
         decimals = decimals_future.result()
         balance = balance_future.result()
         token_symbol = symbol_future.result()
+
 
     return {
         "currency": token_symbol,
@@ -77,7 +81,6 @@ def get_token_data(web3, token_address, address, chain):
 @app.route('/token_balance/', methods=['POST'])
 def token_balance():
     data = request.get_json()
-    print(str(data))
     chain = data['chain']
     address = data['address']
     token_addresses = data['token_addresses']
@@ -88,6 +91,7 @@ def token_balance():
     futures = [executor.submit(get_token_data, web3, token_address, address, chain) for token_address in
                token_addresses]
     currencies = [future.result() for future in futures]
+
 
     return {"currencies": currencies}
 

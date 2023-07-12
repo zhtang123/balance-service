@@ -6,7 +6,7 @@ services:
     volumes:
       - ./getBalance:/app
     ports:
-      - 12007:12007
+      - 0.0.0.0:12007:12007
     networks:
       - mynetwork
     env_file:
@@ -20,7 +20,7 @@ services:
     volumes:
       - ./token_balance:/app
     ports:
-      - 12006:12006
+      - 0.0.0.0:12006:12006
     networks:
       - mynetwork
     env_file:

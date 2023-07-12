@@ -11,18 +11,21 @@ with open('tokens.json', 'r') as f:
 
 ip = os.environ['IP']
 
-def get_token_price(token_symbol):
-    response = requests.post(f'http://{ip}/price24h/', json={"tokens": [token_symbol]})
+
+def get_token_price(token_symbols):
+    response = requests.post(f'http://{ip}/price24h/', json={"tokens": token_symbols})
     data = response.json()['data']
 
-    for item in data:
-        if token_symbol in item:
-            if item[token_symbol]['success']:
-                return item[token_symbol]['price'], item[token_symbol]['priceChangePercent']
-            else:
-                return None, None
+    result = {}
+    for token_symbol in token_symbols:
+        for item in data:
+            if token_symbol in item:
+                if item[token_symbol]['success']:
+                    result[token_symbol] = (item[token_symbol]['price'], item[token_symbol]['priceChangePercent'])
+                else:
+                    result[token_symbol] = (None, None)
 
-    return None, None
+    return result
 
 @app.route('/getBalance/', methods=['POST'])
 def getBalance():
@@ -45,7 +48,7 @@ def getBalance():
                     'success': 'false'
                 })
 
-    response = requests.post('http://localhost:12006/token_balance/', json={
+    response = requests.post('http://token_balance:12006/token_balance/', json={
         'chain': chain,
         'address': address,
         'token_addresses': tokens
@@ -55,9 +58,11 @@ def getBalance():
 
     total_balance_in_usdt = 0
 
+    prices = get_token_price([item['currency'] for item in balances])
+
     for item in balances:
         token_symbol = item['currency']
-        price, price_change_percent = get_token_price(token_symbol)
+        price, price_change_percent = prices[token_symbol]
 
         item['price'] = price
         item['priceChangePercent'] = price_change_percent

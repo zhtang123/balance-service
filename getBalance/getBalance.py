@@ -34,14 +34,17 @@ def getBalance():
     address = Web3.to_checksum_address(data['address'])
     additional_tokens = data.get('currencies', [])
     failed = []
-
     tokens = []
+    native = None
+
     for token in additional_tokens:
         if Web3.is_address(token):  # if the token is an address
             tokens.append(token)
         else:  # if the token is a name
             if chain in token_data and token in token_data[chain]:
                 tokens.append(token_data[chain][token])
+                if token_data[chain][token] == 'native':
+                    native = token
             else:
                 failed.append({
                     'currency': token,
@@ -55,6 +58,9 @@ def getBalance():
     })
 
     balances = response.json()['currencies']
+    for item in balances:
+        if item['currency'] == 'native':
+            item['currency'] = native
 
     total_balance_in_usdt = 0
 
@@ -70,8 +76,8 @@ def getBalance():
 
         # calculate total balance in USDT
         if price is not None:
-            item['currentBalanceInQuoteCurrency'] = int(item['balance']) / (10 ** item['currencyDecimals']) * price
-            total_balance_in_usdt += int(item['balance']) / (10 ** item['currencyDecimals']) * price
+            item['currentBalanceInQuoteCurrency'] = int(int(item['balance']) / (10 ** item['currencyDecimals']) * (10 ** 6) * price)
+            total_balance_in_usdt += item['currentBalanceInQuoteCurrency']
         else:
             item['currentBalanceInQuoteCurrency'] = 0
 
@@ -79,7 +85,7 @@ def getBalance():
         "walletBalance": {
             "quoteCurrency": data['quoteCurrency'],
             "quoteCurrencyDecimals": 6,
-            "currentBalance": int(total_balance_in_usdt * (10 ** 6))
+            "currentBalance": int(total_balance_in_usdt)
         },
         "currencies": failed + balances
     })

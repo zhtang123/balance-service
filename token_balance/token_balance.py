@@ -53,6 +53,15 @@ abi = [
 ]
 
 
+def get_native_balance(web3, address):
+    balance = web3.eth.get_balance(address)
+    return {
+        "currency": "native",  # Or any identifier you want
+        "currencyDecimals": 18,  # This may vary by blockchain
+        "balance": str(balance),
+        "quoteCurrency": "USDT"
+    }
+
 def get_token_data(web3, token_address, address, chain):
 
 
@@ -87,10 +96,15 @@ def token_balance():
     rpc_url = config.get('Chains', chain)
     web3 = Web3(Web3.HTTPProvider(rpc_url))
 
-    futures = [executor.submit(get_token_data, web3, token_address, address, chain) for token_address in
-               token_addresses]
-    currencies = [future.result() for future in futures]
+    futures = []
 
+    for token_address in token_addresses:
+        if token_address == "native":
+            futures.append(executor.submit(get_native_balance, web3, address))
+        else:
+            futures.append(executor.submit(get_token_data, web3, token_address, address, chain))
+
+    currencies = [future.result() for future in futures]
 
     return {"currencies": currencies}
 

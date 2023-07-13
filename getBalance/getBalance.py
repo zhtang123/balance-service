@@ -48,7 +48,7 @@ def getBalance():
                     'success': 'false'
                 })
 
-    response = requests.post('http://token_balance:12006/token_balance/', json={
+    response = requests.post(f'http://{os.environ["TOKEN_BALANCE"]}:12006/token_balance/', json={
         'chain': chain,
         'address': address,
         'token_addresses': tokens
@@ -70,7 +70,10 @@ def getBalance():
 
         # calculate total balance in USDT
         if price is not None:
+            item['currentBalanceInQuoteCurrency'] = int(item['balance']) / (10 ** item['currencyDecimals']) * price
             total_balance_in_usdt += int(item['balance']) / (10 ** item['currencyDecimals']) * price
+        else:
+            item['currentBalanceInQuoteCurrency'] = 0
 
     return jsonify({
         "walletBalance": {

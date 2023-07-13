@@ -56,7 +56,6 @@ abi = [
 def get_token_data(web3, token_address, address, chain):
 
 
-
     token_contract = web3.eth.contract(address=token_address, abi=abi)
 
     with ThreadPoolExecutor(max_workers=30) as executor:
@@ -73,7 +72,7 @@ def get_token_data(web3, token_address, address, chain):
         "currency": token_symbol,
         "currencyDecimals": decimals,
         "balance": str(balance),
-        "quoteCurrency": chain
+        "quoteCurrency": "USDT"
     }
 
 

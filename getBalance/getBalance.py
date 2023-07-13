@@ -31,7 +31,7 @@ def get_token_price(token_symbols):
 def getBalance():
     data = request.get_json()
     chain = data['network']
-    address = data['address']
+    address = Web3.to_checksum_address(data['address'])
     additional_tokens = data.get('currencies', [])
     failed = []
 
@@ -77,7 +77,7 @@ def getBalance():
 
     return jsonify({
         "walletBalance": {
-            "quoteCurrency": data['quoteCurrency'],
+            "quoteCurrency": int(data['quoteCurrency'] * (10 ** 6)),
             "quoteCurrencyDecimals": 6,
             "currentBalance": str(total_balance_in_usdt)
         },

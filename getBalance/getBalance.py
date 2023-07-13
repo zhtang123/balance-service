@@ -77,9 +77,9 @@ def getBalance():
 
     return jsonify({
         "walletBalance": {
-            "quoteCurrency": int(data['quoteCurrency'] * (10 ** 6)),
+            "quoteCurrency": data['quoteCurrency'],
             "quoteCurrencyDecimals": 6,
-            "currentBalance": str(total_balance_in_usdt)
+            "currentBalance": int(total_balance_in_usdt * (10 ** 6))
         },
         "currencies": failed + balances
     })

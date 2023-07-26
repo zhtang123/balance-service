@@ -98,7 +98,7 @@ def getBalance():
             "quoteCurrencyDecimals": 6,
             "currentBalance": int(total_balance_in_usdt),
             "averagePriceChangePercent": average_price_change_percent,
-            "actualValueChange": actual_value_change
+            "actualValueChange": int(actual_value_change)
         },
         "currencies": failed + balances
     })

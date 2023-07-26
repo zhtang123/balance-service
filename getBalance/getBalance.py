@@ -36,6 +36,7 @@ def getBalance():
     failed = []
     tokens = []
     native = None
+    total_price_change_percent = 0
 
     for token in additional_tokens:
         if Web3.is_address(token):  # if the token is an address
@@ -78,17 +79,30 @@ def getBalance():
         if price is not None:
             item['currentBalanceInQuoteCurrency'] = int(int(item['balance']) / (10 ** item['currencyDecimals']) * (10 ** 6) * price)
             total_balance_in_usdt += item['currentBalanceInQuoteCurrency']
+
+            # calculate weighted price change percent
+            if price_change_percent is not None:
+                total_price_change_percent += price_change_percent * item['currentBalanceInQuoteCurrency']
         else:
             item['currentBalanceInQuoteCurrency'] = 0
+
+    # calculate average price change percent
+    average_price_change_percent = total_price_change_percent / total_balance_in_usdt if total_balance_in_usdt != 0 else None
+
+    # calculate actual value change
+    actual_value_change = total_balance_in_usdt * (average_price_change_percent / 100) if average_price_change_percent is not None else None
 
     return jsonify({
         "walletBalance": {
             "quoteCurrency": data['quoteCurrency'],
             "quoteCurrencyDecimals": 6,
-            "currentBalance": int(total_balance_in_usdt)
+            "currentBalance": int(total_balance_in_usdt),
+            "averagePriceChangePercent": average_price_change_percent,
+            "actualValueChange": actual_value_change
         },
         "currencies": failed + balances
     })
+
 
 if __name__ == '__main__':
     pass

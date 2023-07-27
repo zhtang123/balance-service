@@ -87,10 +87,10 @@ def getBalance():
             item['currentBalanceInQuoteCurrency'] = 0
 
     # calculate average price change percent
-    average_price_change_percent = total_price_change_percent / total_balance_in_usdt if total_balance_in_usdt != 0 else None
+    average_price_change_percent = total_price_change_percent / total_balance_in_usdt if total_balance_in_usdt != 0 else 0
 
     # calculate actual value change
-    actual_value_change = total_balance_in_usdt * (average_price_change_percent / 100) if average_price_change_percent is not None else None
+    actual_value_change = total_balance_in_usdt * (average_price_change_percent / 100)
 
     return jsonify({
         "walletBalance": {
